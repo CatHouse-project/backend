@@ -1,3 +1,7 @@
+"""
+URL mappings for the user app
+"""
+
 from django.urls import path
 
 from user import views

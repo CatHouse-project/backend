@@ -44,3 +44,6 @@ class UserAdmin(BaseUserAdmin):
     )
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.Answer)
+admin.site.register(models.Match)
+admin.site.register(models.Group)
