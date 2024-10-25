@@ -28,9 +28,9 @@ class MatchViewSet(viewsets.ModelViewSet):
         requester = request.user # 현재 사용자 (신청자)
 
         # 1. 요청자가 이미 pending이나 accepted 상태인 경우 확인
-        if Match.objects.filter(requester = requester, status_in = ['pending', 'accepted']).exists():
+        if Match.objects.filter(requester = requester, status__in = ['pending', 'accepted']).exists():
             return Response(
-                {"error": "Cannot send match request: you already have a pending or accepted request."}.
+                {"error": "Cannot send match request: you already have a pending or accepted request."},
                 status = status.HTTP_400_BAD_REQUEST
             )
 

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'answer',
     'match',
     'group',
+    'result',
 ]
 
 MIDDLEWARE = [

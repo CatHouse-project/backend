@@ -1,7 +1,6 @@
 """
 Views for Result APIs
 """
-
 from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -10,16 +9,14 @@ from rest_framework.response import Response
 from core.models import Result
 from result import serializers
 
-
 class ResultViewSet(viewsets.ModelViewSet):
     """View for manage Result APIs"""
-    serializer_class = serializers.MatchDetailSerializer
+    serializer_class = serializers.ResultDetailSerializer
     queryset = Result.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # 현재 사용자의 매칭 결과 반환
         return self.queryset.filter(user = self.request.user).order_by('-id')
 
     def get_serializer_class(self):
@@ -28,22 +25,29 @@ class ResultViewSet(viewsets.ModelViewSet):
 
         return self.serializer_class
 
-    def perform_create(self, serializer):
-        """Create a new match result"""
-        serializer.save(user = self.request.user)
-
     def create(self, request, *args, **kwargs):
-        """Create or update a match result"""
-        print(request.data)
+        """Receive matching data from AI and save it"""
+        # 현재 로그인된 사용자 가져오기
         user = request.user
-        matched_user_id = request.data.get('matched_user') # 매칭된 사용자의 ID 받아오기
-        compatibility_score = request.data.get('compatibility_score') # 적합성 점수 받아오기
 
-        # 기존 응답이 있는 경우 업데이트, 없으면 새로 생성
-        result_obj, created = Result.objects.get_or_create(
-            user = user,
-            matched_user_id = matched_user_id,
-            defaults = {'compatibility_score': compatibility_score},
+        # serializer 초기화
+        serializer = self.get_serializer(data = request.data)
+
+        # 유효성 검사
+        serializer.is_valid(raise_exception = True)
+
+        # user 필드에 현재 사용자 설정 후 데이터 저장
+        serializer.save(user = user)
+
+        return Response({"message": "Result successfully created."}, status = status.HTTP_201_CREATED)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Deleting a result with a success message"""
+        instance = self.get_object() # 삭제할 객체 가져오기
+        self.perform_destroy(instance) # 객체 삭제
+
+        # 삭제 성공 메시지
+        return Response(
+            {"message": "Result successfully deleted."},
+            status = status.HTTP_200_OK
         )
-
-        return Response({"message": "Result saved successfully."}, status = status.HTTP_201_CREATED)

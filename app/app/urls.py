@@ -30,7 +30,8 @@ urlpatterns = [
          name = 'api-docs'
     ),
     path('api/user/', include('user.urls')),
-    path('api/answer/', inclue('answer.urls')),
+    path('api/answer/', include('answer.urls')),
     path('api/group/', include('group.urls')),
     path('api/match/', include('match.urls')),
+    path('api/result/', include('result.urls')),
 ]

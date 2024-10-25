@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['student_id', 'email', 'password', 'name', 'description']
+        fields = ['id', 'student_id', 'email', 'password', 'name', 'gender', 'age', 'major', 'grade', 'description']
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 5},
             'email': {'required': True}, # 이메일 필수
@@ -81,7 +81,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
         user = authenticate(
             request = self.context.get('request'),
-            username = email,
+            username = student_id, # email -> student_id로 변경
             password = password,
         )
         if not user or user.student_id != student_id:
