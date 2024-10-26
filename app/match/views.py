@@ -97,13 +97,6 @@ class MatchViewSet(viewsets.ModelViewSet):
         if match_request.status == 'accepted':
             return Response({"error": "Match request already accepted."}, status = status.HTTP_400_BAD_REQUEST)
 
-        # # 요청자의 상태 확인
-        # if Match.objects.filter(requester = match_request.requester, status__in = ['pending', 'accepted']).exists():
-        #     return Response(    
-        #         {"error": "Cannot accept match request: you already have a pending or accepted request."},
-        #         status = status.HTTP_400_BAD_REQUEST
-        #     )
-
         # 요청 상태를 accepted로 변경
         match_request.status = "accepted"
         match_request.save()
@@ -139,8 +132,5 @@ class MatchViewSet(viewsets.ModelViewSet):
         # 상태를 rejected로 변경
         match_request.status = 'rejected'
         match_request.save()
-
-        # 기록 삭제
-        match_request.delete()
 
         return Response({"message": "Match request rejected and deleted."}, status = status.HTTP_200_OK)

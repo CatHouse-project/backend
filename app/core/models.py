@@ -23,10 +23,10 @@ class UserManager(BaseUserManager):
 
         return user
     
-    def create_superuser(self, email, student_id, name, password):
+    def create_superuser(self, email, name, password):
         user = self.create_user(
             email = email,
-            student_id = student_id,
+            # student_id = student_id,
             password = password,
             name = name,
         )
@@ -37,32 +37,26 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length = 255, unique=True)
-    name = models.CharField(max_length = 255)
-    student_id = models.IntegerField(
-        unique = True,
-        validators = [MinValueValidator(100000000), MaxValueValidator(999999999)], # 9자리 숫자로 제한
-        null = False, # 필수 항목
-        default = 200000000,
-    )
-    description = models.CharField(max_length = 255, default="", blank = True)
+    email = models.EmailField(max_length = 100, unique = True)
+    name = models.CharField(max_length = 50)
+    phone_number = models.CharField(max_length = 20, default = '010-0000-0000')
+    birthday = models.DateField(default='2000-01-01')
+    room_capacity = models.IntegerField(default=2)
+    gender = models.CharField(max_length=10, choices=[('male', 'Male'), ('female', 'Female')], blank=False, default='male')
+    nickname = models.CharField(max_length=20, unique = True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    # 추가적인 프로필 정보
-    gender = models.CharField(max_length = 10, choices = [('male', 'Male'), ('female', 'Female')], blank = False, default='male')
-    age = models.PositiveIntegerField(null = True, blank = True)
-    grade = models.CharField(max_length = 10, blank = True)
-    major = models.CharField(max_length = 100, blank = True)
-
     objects = UserManager()
 
-    USERNAME_FIELD = 'student_id' # 학번을 사용자 인증 필드로 사용
-    REQUIRED_FIELDS = ['name', 'email'] # 회원 가입 시 필수 입력 필드
+    USERNAME_FIELD = 'email' # 학번을 사용자 인증 필드로 사용
+    REQUIRED_FIELDS = ['name']
+    # REQUIRED_FIELDS = ['name', 'email'] # 회원 가입 시 필수 입력 필드
 
     def __str__(self):
-        return f"{self.name} ({self.student_id})" # 사용자 이름과 학번을 반환
+        return f"{self.name} ({self.email})" # 사용자 이름과 학번을 반환
 
+# 유저 응답 모델
 class Answer(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -104,24 +98,6 @@ class Match(models.Model):
 class Group(models.Model):
     members = models.ManyToManyField(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add = True)
-
-# 매칭 결과 데이터 관련 모델
-# class Result(models.Model):
-#     user = models.ForeignKey( # 사용자
-#         settings.AUTH_USER_MODEL,
-#         related_name = 'match_results', # 이 유저의 매칭 결과를 조회
-#         on_delete = models.CASCADE,
-#     )
-#     matched_user = models.ForeignKey( # AI가 매칭한 다른 사용자
-#         settings.AUTH_USER_MODEL,
-#         related_name = 'matched_results', # 이 유저와 매칭된 결과를 조회
-#         on_delete = models.CASCADE,
-#     )
-#     compatibility_score = models.FloatField() # AI가 계산한 적합성 점수
-#     created_at = models.DateTimeField(auto_now_add = True)
-# 
-#     def __str__(self):
-#         return f"{self.user.email} matched with {self.matched_user.email} - Score: {self.compatibility_score}"
 
 # 매칭 결과 데이터 관련 모델
 class Result(models.Model):

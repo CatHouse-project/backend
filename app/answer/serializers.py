@@ -11,7 +11,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['id', 'answer', 'responses']
+        fields = ['id', 'user', 'responses']
         read_only_fields = ['id']
 
 class AnswerDetailSerializer(AnswerSerializer):
